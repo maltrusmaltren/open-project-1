@@ -1,20 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.Localization;
 
-[CreateAssetMenu(fileName = "Interaction", menuName = "UI/Interaction", order = 51)]
+[CreateAssetMenu(fileName = "InteractionSO", menuName = "UI/Interaction")]
 public class InteractionSO : ScriptableObject
 {
-	[Tooltip("The interaction name")]
-	[SerializeField]
-	private LocalizedString _interactionName;
+	[SerializeField] private LocalizedString _interactionName = default;
+	[SerializeField] private Sprite _interactionIcon = default;
+	[SerializeField] private InteractionType _interactionType = default;
 
-	[Tooltip("The Interaction Type")]
-	[SerializeField]
-	private InteractionType _interactionType;
-
-
-
+	public Sprite InteractionIcon => _interactionIcon;
 	public LocalizedString InteractionName => _interactionName;
 	public InteractionType InteractionType => _interactionType;
-
 }

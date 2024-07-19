@@ -1,10 +1,9 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class DissolveHelper : MonoBehaviour
 {
-	[SerializeField] ParticleSystem _dissolveParticlesPrefab;
+	[SerializeField] ParticleSystem _dissolveParticlesPrefab = default;
 	[SerializeField] float _dissolveDuration = 1f;
 
 	private MeshRenderer _renderer;

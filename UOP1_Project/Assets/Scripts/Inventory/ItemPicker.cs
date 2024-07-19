@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ItemPicker : MonoBehaviour
 {
-	[SerializeField] private ItemEventChannelSo _addItemEvent;
+	[Header("Broadcasting on")]
+	[SerializeField] ItemEventChannelSO _addItemEvent = default;
 
-	public void PickItem(Item item)
+	public void PickItem(ItemSO item)
 	{
 		if (_addItemEvent != null)
 			_addItemEvent.RaiseEvent(item);

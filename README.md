@@ -1,10 +1,12 @@
+⚠ Note: As of December 2021, Open Projects and Chop Chop are not in development anymore. For more information, read [here](https://forum.unity.com/threads/news-and-updates.981531/#post-7703068). The information below is kept as legacy.
+
 # Unity Open Project #1: Chop Chop
 
 ![Unity Open Projects](/Docs/ReadmeImages/ApproachingTheIsland_Header.jpg)
 
 Welcome! This is the repository for the first Unity **Open Project**, an initiative where Unity and the community collaborate together to create a small **open-source game demo**.
 
-The first game, which is currently under development, is an action-adventure titled _Chop Chop_ ([more info](https://open.codecks.io/unity-open-project-1/decks/32/card/126-what-is-this)).
+The first game, ~~which is currently under development~~, is an action-adventure titled _Chop Chop_ ([more info](https://open.codecks.io/unity-open-project-1/decks/32/card/126-what-is-this)).
 
 ## Follow the progress
 * The [dedicated sub-forum](https://forum.unity.com/forums/open-projects.531/) on the Unity forums is where the Unity team and the whole community discuss and brainstorm ideas.  
@@ -21,7 +23,7 @@ In addition to that, make sure you read the [Contribution Guidelines](https://do
 
 If you feel like taking on some **bugs**, check out the [Issues page](https://github.com/UnityTechnologies/open-project-1/issues) on this very repo. In fact, another thing you could help with is by doing some **QA testing**: download the [latest release](https://github.com/UnityTechnologies/open-project-1/releases) of the game, play it, and report issues in the appropriate page. That's also a great way to be part of this project!
 
-This project is built on **Unity 2019.4 LTS**, whatever latest patch is available.
+This project is built on **Unity 2020.3 LTS**, whatever latest patch is available (you can see exactly which version [here](https://github.com/UnityTechnologies/open-project-1/blob/main/UOP1_Project/ProjectSettings/ProjectVersion.txt)).
 
 ![OP1 WIP Screenshot](/Docs/ReadmeImages/Jumping.png)
 _A work in progress screenshot_

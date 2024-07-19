@@ -7,11 +7,10 @@ using UnityEngine;
 public class Protagonist : MonoBehaviour
 {
 	[SerializeField] private InputReader _inputReader = default;
-	public TransformAnchor gameplayCameraTransform;
+	[SerializeField] private TransformAnchor _gameplayCameraTransform = default;
 
-	[SerializeField] private VoidEventChannelSO _openInventoryChannel = default;
-
-	private Vector2 _previousMovementInput;
+	private Vector2 _inputVector;
+	private float _previousSpeed;
 
 	//These fields are read and manipulated by the StateMachine actions
 	[NonSerialized] public bool jumpInput;
@@ -37,25 +36,24 @@ public class Protagonist : MonoBehaviour
 	//Adds listeners for events being triggered in the InputReader script
 	private void OnEnable()
 	{
-		_inputReader.jumpEvent += OnJumpInitiated;
-		_inputReader.jumpCanceledEvent += OnJumpCanceled;
-		_inputReader.moveEvent += OnMove;
-		_inputReader.openInventoryEvent += OnOpenInventory;
-		_inputReader.startedRunning += OnStartedRunning;
-		_inputReader.stoppedRunning += OnStoppedRunning;
-		_inputReader.attackEvent += OnAttack;
+		_inputReader.JumpEvent += OnJumpInitiated;
+		_inputReader.JumpCanceledEvent += OnJumpCanceled;
+		_inputReader.MoveEvent += OnMove;
+		_inputReader.StartedRunning += OnStartedRunning;
+		_inputReader.StoppedRunning += OnStoppedRunning;
+		_inputReader.AttackEvent += OnStartedAttack;
 		//...
 	}
 
 	//Removes all listeners to the events coming from the InputReader script
 	private void OnDisable()
 	{
-		_inputReader.jumpEvent -= OnJumpInitiated;
-		_inputReader.jumpCanceledEvent -= OnJumpCanceled;
-		_inputReader.moveEvent -= OnMove;
-		_inputReader.openInventoryEvent -= OnOpenInventory;
-		_inputReader.startedRunning -= OnStartedRunning;
-		_inputReader.stoppedRunning -= OnStoppedRunning;
+		_inputReader.JumpEvent -= OnJumpInitiated;
+		_inputReader.JumpCanceledEvent -= OnJumpCanceled;
+		_inputReader.MoveEvent -= OnMove;
+		_inputReader.StartedRunning -= OnStartedRunning;
+		_inputReader.StoppedRunning -= OnStoppedRunning;
+		_inputReader.AttackEvent -= OnStartedAttack;
 		//...
 	}
 
@@ -66,38 +64,57 @@ public class Protagonist : MonoBehaviour
 
 	private void RecalculateMovement()
 	{
-		if (gameplayCameraTransform.isSet)
+		float targetSpeed;
+		Vector3 adjustedMovement;
+
+		if (_gameplayCameraTransform.isSet)
 		{
 			//Get the two axes from the camera and flatten them on the XZ plane
-			Vector3 cameraForward = gameplayCameraTransform.Transform.forward;
+			Vector3 cameraForward = _gameplayCameraTransform.Value.forward;
 			cameraForward.y = 0f;
-			Vector3 cameraRight = gameplayCameraTransform.Transform.right;
+			Vector3 cameraRight = _gameplayCameraTransform.Value.right;
 			cameraRight.y = 0f;
 
 			//Use the two axes, modulated by the corresponding inputs, and construct the final vector
-			Vector3 adjustedMovement = cameraRight.normalized * _previousMovementInput.x +
-				cameraForward.normalized * _previousMovementInput.y;
-
-			movementInput = Vector3.ClampMagnitude(adjustedMovement, 1f);
+			adjustedMovement = cameraRight.normalized * _inputVector.x +
+				cameraForward.normalized * _inputVector.y;
 		}
 		else
 		{
 			//No CameraManager exists in the scene, so the input is just used absolute in world-space
 			Debug.LogWarning("No gameplay camera in the scene. Movement orientation will not be correct.");
-			movementInput = new Vector3(_previousMovementInput.x, 0f, _previousMovementInput.y);
+			adjustedMovement = new Vector3(_inputVector.x, 0f, _inputVector.y);
 		}
 
-		// This is used to set the speed to the maximum if holding the Shift key,
-		// to allow keyboard players to "run"
-		if (isRunning)
-			movementInput.Normalize();
+		//Fix to avoid getting a Vector3.zero vector, which would result in the player turning to x:0, z:0
+		if (_inputVector.sqrMagnitude == 0f)
+			adjustedMovement = transform.forward * (adjustedMovement.magnitude + .01f);
+
+		//Accelerate/decelerate
+		targetSpeed = Mathf.Clamp01(_inputVector.magnitude);
+		if (targetSpeed > 0f)
+		{
+			// This is used to set the speed to the maximum if holding the Shift key,
+			// to allow keyboard players to "run"
+			if (isRunning)
+				targetSpeed = 1f;
+
+			if (attackInput)
+				targetSpeed = .05f;
+		}
+		targetSpeed = Mathf.Lerp(_previousSpeed, targetSpeed, Time.deltaTime * 4f);
+
+		movementInput = adjustedMovement.normalized * targetSpeed;
+
+		_previousSpeed = targetSpeed;
 	}
 
 	//---- EVENT LISTENERS ----
 
 	private void OnMove(Vector2 movement)
 	{
-		_previousMovementInput = movement;
+
+		_inputVector = movement;
 	}
 
 	private void OnJumpInitiated()
@@ -114,10 +131,9 @@ public class Protagonist : MonoBehaviour
 
 	private void OnStartedRunning() => isRunning = true;
 
-	private void OnOpenInventory()
-	{
-		_openInventoryChannel.RaiseEvent();
-	}
 
-	private void OnAttack() => attackInput = true;
+	private void OnStartedAttack() => attackInput = true;
+
+	// Triggered from Animation Event
+	public void ConsumeAttackInput() => attackInput = false;
 }

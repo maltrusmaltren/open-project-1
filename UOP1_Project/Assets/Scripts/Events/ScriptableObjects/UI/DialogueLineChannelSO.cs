@@ -1,15 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization;
 
 [CreateAssetMenu(menuName = "Events/UI/Dialogue line Channel")]
-public class DialogueLineChannelSO : ScriptableObject
+public class DialogueLineChannelSO : DescriptionBaseSO
 {
-	public UnityAction<DialogueLineSO> OnEventRaised;
-	public void RaiseEvent(DialogueLineSO line)
+	public UnityAction<LocalizedString, ActorSO> OnEventRaised;
+
+	public void RaiseEvent(LocalizedString line, ActorSO actor)
 	{
 		if (OnEventRaised != null)
-			OnEventRaised.Invoke(line);
+			OnEventRaised.Invoke(line, actor);
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -24,11 +23,21 @@ public class AudioCue : MonoBehaviour
 			StartCoroutine(PlayDelayed());
 	}
 
+	private void OnDisable()
+	{
+		_playOnStart = false;
+		StopAudioCue();
+	}
+
 	private IEnumerator PlayDelayed()
 	{
-		yield return new WaitForSeconds(.1f);
+		//The wait allows the AudioManager to be ready for play requests
+		yield return new WaitForSeconds(1f);
 
-		PlayAudioCue();
+		//This additional check prevents the AudioCue from playing if the object is disabled or the scene unloaded
+		//This prevents playing a looping AudioCue which then would be never stopped
+		if (_playOnStart)
+			PlayAudioCue();
 	}
 
 	public void PlayAudioCue()

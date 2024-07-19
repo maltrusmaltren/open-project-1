@@ -7,9 +7,10 @@ using UnityEngine;
 /// </summary>
 
 [CreateAssetMenu(menuName = "Events/Bool Event Channel")]
-public class BoolEventChannelSO : ScriptableObject
+public class BoolEventChannelSO : DescriptionBaseSO
 {
-	public UnityAction<bool> OnEventRaised;
+	public event UnityAction<bool> OnEventRaised;
+
 	public void RaiseEvent(bool value)
 	{
 		if (OnEventRaised != null)

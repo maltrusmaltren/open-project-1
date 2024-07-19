@@ -4,146 +4,107 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
-	[SerializeField]
-	private Inventory currentInventory;
+	[SerializeField] private InventorySO _currentInventory = default;
+	[SerializeField] private SaveSystem _saveSystem;
 
-	[SerializeField]
-	private ItemEventChannelSo CookRecipeEvent;
-	[SerializeField]
-	private ItemEventChannelSo UseItemEvent;
-	[SerializeField]
-	private ItemEventChannelSo EquipItemEvent;
-
-
-
-	[SerializeField]
-	ItemEventChannelSo AddItemEvent;
-	[SerializeField]
-	ItemEventChannelSo RemoveItemEvent;
-
+	[Header("Listening on")]
+	[SerializeField] private ItemEventChannelSO _cookRecipeEvent = default;
+	[SerializeField] private ItemEventChannelSO _useItemEvent = default;
+	[SerializeField] private ItemEventChannelSO _equipItemEvent = default;
+	[SerializeField] private ItemStackEventChannelSO _rewardItemEvent = default;
+	[SerializeField] private ItemEventChannelSO _giveItemEvent = default;
+	[SerializeField] private ItemEventChannelSO _addItemEvent = default;
+	[SerializeField] private ItemEventChannelSO _removeItemEvent = default;
+	
 	private void OnEnable()
 	{
-		//Check if the event exists to avoid errors
-		if (CookRecipeEvent != null)
-		{
-			CookRecipeEvent.OnEventRaised += CookRecipeEventRaised;
-		}
-		if (UseItemEvent != null)
-		{
-			UseItemEvent.OnEventRaised += UseItemEventRaised;
-		}
-		if (EquipItemEvent != null)
-		{
-			EquipItemEvent.OnEventRaised += EquipItemEventRaised;
-		}
-		if (AddItemEvent != null)
-		{
-			AddItemEvent.OnEventRaised += AddItem;
-		}
-		if (RemoveItemEvent != null)
-		{
-			RemoveItemEvent.OnEventRaised += RemoveItem;
-		}
+		_cookRecipeEvent.OnEventRaised += CookRecipeEventRaised;
+		_useItemEvent.OnEventRaised += UseItemEventRaised;
+		_equipItemEvent.OnEventRaised += EquipItemEventRaised;
+		_addItemEvent.OnEventRaised += AddItem;
+		_removeItemEvent.OnEventRaised += RemoveItem;
+		_rewardItemEvent.OnEventRaised += AddItemStack;
+		_giveItemEvent.OnEventRaised += RemoveItem;
 	}
 
 	private void OnDisable()
 	{
-		if (CookRecipeEvent != null)
-		{
-			CookRecipeEvent.OnEventRaised -= CookRecipeEventRaised;
-		}
-		if (UseItemEvent != null)
-		{
-			UseItemEvent.OnEventRaised -= UseItemEventRaised;
-		}
-		if (EquipItemEvent != null)
-		{
-			EquipItemEvent.OnEventRaised -= EquipItemEventRaised;
-		}
-		if (AddItemEvent != null)
-		{
-			AddItemEvent.OnEventRaised -= AddItem;
-		}
-		if (RemoveItemEvent != null)
-		{
-			RemoveItemEvent.OnEventRaised -= RemoveItem;
-		}
+		_cookRecipeEvent.OnEventRaised -= CookRecipeEventRaised;
+		_useItemEvent.OnEventRaised -= UseItemEventRaised;
+		_equipItemEvent.OnEventRaised -= EquipItemEventRaised;
+		_addItemEvent.OnEventRaised -= AddItem;
+		_removeItemEvent.OnEventRaised -= RemoveItem;
 	}
 
-
-
-
-
-	void AddItemWithUIUpdate(Item item)
+	private void AddItemWithUIUpdate(ItemSO item)
 	{
-
-		currentInventory.Add(item);
-		if (currentInventory.Contains(item))
+		_currentInventory.Add(item);
+		if (_currentInventory.Contains(item))
 		{
-			ItemStack itemToUpdate = currentInventory.Items.Find(o => o.Item == item);
-			//	UIManager.Instance.UpdateInventoryScreen(itemToUpdate, false);
+			ItemStack itemToUpdate = _currentInventory.Items.Find(o => o.Item == item);
 		}
 	}
 
-	void RemoveItemWithUIUpdate(Item item)
+	private void RemoveItemWithUIUpdate(ItemSO item)
 	{
 		ItemStack itemToUpdate = new ItemStack();
 
-		if (currentInventory.Contains(item))
+		if (_currentInventory.Contains(item))
 		{
-			itemToUpdate = currentInventory.Items.Find(o => o.Item == item);
+			itemToUpdate = _currentInventory.Items.Find(o => o.Item == item);
 		}
 
-		currentInventory.Remove(item);
+		_currentInventory.Remove(item);
 
-		bool removeItem = currentInventory.Contains(item);
-		//	UIManager.Instance.UpdateInventoryScreen(itemToUpdate, removeItem);
-
-	}
-	void AddItem(Item item)
-	{
-		currentInventory.Add(item);
-
-	}
-	void RemoveItem(Item item)
-	{
-		currentInventory.Remove(item);
-
+		bool removeItem = _currentInventory.Contains(item);
 	}
 
-
-	void CookRecipeEventRaised(Item recipe)
+	private void AddItem(ItemSO item)
 	{
+		_currentInventory.Add(item);
+		_saveSystem.SaveDataToDisk();
+	}
 
-		//find recipe
-		if (currentInventory.Contains(recipe))
+	private void AddItemStack(ItemStack itemStack)
+	{
+		_currentInventory.Add(itemStack.Item, itemStack.Amount);
+		_saveSystem.SaveDataToDisk();
+	}
+
+	private void RemoveItem(ItemSO item)
+	{
+		_currentInventory.Remove(item);
+		_saveSystem.SaveDataToDisk();
+	}
+
+	private void CookRecipeEventRaised(ItemSO recipe)
+	{
+		if (_currentInventory.Contains(recipe))
 		{
 			List<ItemStack> ingredients = recipe.IngredientsList;
+
 			//remove ingredients (when it's a consumable)
-			if (currentInventory.hasIngredients(ingredients))
+			if (_currentInventory.hasIngredients(ingredients))
 			{
 				for (int i = 0; i < ingredients.Count; i++)
 				{
-					if ((ingredients[i].Item.ItemType.ActionType == ItemInventoryActionType.use))
-						currentInventory.Remove(ingredients[i].Item, ingredients[i].Amount);
+					if ((ingredients[i].Item.ItemType.ActionType == ItemInventoryActionType.Use))
+						_currentInventory.Remove(ingredients[i].Item, ingredients[i].Amount);
 				}
-				//add dish
-				currentInventory.Add(recipe.ResultingDish);
+				_currentInventory.Add(recipe.ResultingDish);
 			}
-
 		}
 
-
-
-
+		_saveSystem.SaveDataToDisk();
 	}
 
-	public void UseItemEventRaised(Item item)
+	private void UseItemEventRaised(ItemSO item)
 	{
 		RemoveItem(item);
 	}
 
-	public void EquipItemEventRaised(Item item)
+	//This empty function is left here for the possibility of adding decorative 3D items
+	private void EquipItemEventRaised(ItemSO item)
 	{
 
 	}

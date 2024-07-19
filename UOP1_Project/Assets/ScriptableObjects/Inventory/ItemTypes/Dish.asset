@@ -14,17 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _actionName:
     m_TableReference:
-      m_TableCollectionName: GUID:0a8caeffc79914eb7ae64a269378d203
+      m_TableCollectionName: GUID:457af5455987a4876acc4332c3a761e5
     m_TableEntryReference:
       m_KeyId: 7281953546072064
       m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 1
   _typeName:
     m_TableReference:
-      m_TableCollectionName: GUID:5654218660b564ff7a2858b08dfbf571
+      m_TableCollectionName: GUID:457af5455987a4876acc4332c3a761e5
     m_TableEntryReference:
       m_KeyId: 8664375296
       m_Key: 
-  _typeColor: {r: 0.5137255, g: 0.6800925, b: 1, a: 1}
+    m_FallbackState: 0
+    m_WaitForCompletion: 1
+  _typeColor: {r: 0.67609215, g: 0.7410676, b: 0.8679245, a: 1}
   _type: 4
   _actionType: 1
   _tabType: {fileID: 11400000, guid: 89de7bb70f5b243fa80be0d8338dc39c, type: 2}
